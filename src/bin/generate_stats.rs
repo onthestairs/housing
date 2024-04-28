@@ -1,5 +1,7 @@
+use std::fs;
+
 use clap::Parser;
-use density::msoa;
+use density::{data, msoa};
 use geo::GeodesicArea;
 
 #[derive(Parser, Debug)]
@@ -8,6 +10,13 @@ struct Args {
     /// Name of the MSOA
     #[arg(short, long)]
     msoa: String,
+}
+
+#[derive(serde::Serialize)]
+struct Stats {
+    usable_area_m2: f64,
+    local_buildings_area_m2: f64,
+    built_up_area_percent: f64,
 }
 
 fn main() {
@@ -25,8 +34,12 @@ fn main() {
 
     let built_up_area_percent = local_buildings_area / usable_area * 100.0;
 
-    println!(
-        "MSOA: {}\nUsable area (m2): {}\nLocal buildings area (m2): {}\nBuilt-up area percent: {}%",
-        msoa, usable_area, local_buildings_area, built_up_area_percent
-    );
+    let stats = Stats {
+        usable_area_m2: usable_area,
+        local_buildings_area_m2: local_buildings_area,
+        built_up_area_percent,
+    };
+
+    let path = data::get_stats_path(&msoa);
+    fs::write(path, serde_json::to_string(&stats).unwrap()).unwrap();
 }

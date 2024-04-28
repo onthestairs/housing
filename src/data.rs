@@ -11,9 +11,13 @@ pub fn get_msoa_path(msoa: &str) -> String {
 }
 
 pub fn get_msoa_local_buildings_path(msoa: &str) -> String {
-    return format!("./data/msoa-local-builds/{}.geojson", msoa);
+    return format!("./data/msoa-local-buildings/{}.geojson", msoa);
 }
 
 pub fn get_msoa_usable_path(msoa: &str) -> String {
     return format!("./data/msoa-usable/{}.geojson", msoa);
+}
+
+pub fn get_stats_path(msoa: &str) -> String {
+    return format!("./data/stats/{}.json", msoa);
 }
