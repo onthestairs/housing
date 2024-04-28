@@ -13,6 +13,7 @@
     pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
 
     pkgs.proj
+    pkgs.just
 
   # https://devenv.sh/scripts/
   scripts.hello.exec = "echo hello from $GREET";
