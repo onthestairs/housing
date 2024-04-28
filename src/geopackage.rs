@@ -11,11 +11,17 @@ pub struct Geom {
 }
 
 pub fn make_query(layer: &str) -> String {
+    // sql statement for a geopackage file
     format!(
         "SELECT geom from {} WHERE id IN 
          (SELECT id FROM rtree_{}_geom WHERE 
-              (minx >= ? AND miny >= ? AND minx <= ? AND miny <= ?)
-           OR (maxx >= ? AND maxy >= ? AND maxx <= ? AND maxy <= ?)
+            NOT
+            (
+              (maxx <= ?)
+              OR (minx >= ?)
+              OR (maxy <= ?)
+              OR (miny >= ?)
+            )
          );",
         layer, layer
     )
@@ -25,18 +31,12 @@ pub fn get_geoms<'a>(
     query: &'a str,
     bbox: &'a Rect<f64>,
     pool: &'a Pool<Sqlite>,
-    // ) -> Pin<Box<dyn Stream<Item = Result<<Self::Database as Database>::Row, Error>> + Send>> {
 ) -> Pin<Box<dyn Stream<Item = Result<Geom, Error>> + Send + 'a>> {
     let rows = sqlx::query_as::<_, Geom>(&query)
         // mins
         .bind(bbox.min().x)
-        .bind(bbox.min().y)
         .bind(bbox.max().x)
-        .bind(bbox.max().y)
-        // maxs
-        .bind(bbox.min().x)
         .bind(bbox.min().y)
-        .bind(bbox.max().x)
         .bind(bbox.max().y)
         // fetch
         .fetch(pool);
