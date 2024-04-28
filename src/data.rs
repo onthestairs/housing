@@ -1,5 +1,5 @@
 pub fn get_zoomstack_path() -> String {
-    return "./data/uk-zoomstack-geopacakge/OS_Open_Zoomstack.gpkg".to_string();
+    return "./data/uk-zoomstack-geopackage/OS_Open_Zoomstack.gpkg".to_string();
 }
 
 pub fn get_all_msoas_path() -> String {
