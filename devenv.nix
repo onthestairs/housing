@@ -14,6 +14,8 @@
 
     pkgs.proj
     pkgs.just
+    pkgs.rust-analyzer
+  ];
 
   # https://devenv.sh/scripts/
   scripts.hello.exec = "echo hello from $GREET";
