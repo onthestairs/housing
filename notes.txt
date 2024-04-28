@@ -2,6 +2,6 @@ MSOA geojson: https://www.data.gov.uk/dataset/ee11adb7-a1f8-4d18-a261-cd5b64973c
 
 
 Some MSOAs:
-- brighton: E02000001
+- brighton: E02003523
 - windermere E02004015
 

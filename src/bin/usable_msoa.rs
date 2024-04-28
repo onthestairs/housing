@@ -8,11 +8,10 @@ use geozero::{wkb, ToWkt};
 use proj::Proj;
 use sqlx::sqlite::SqlitePoolOptions;
 
-use density::{geopackage, msoa};
+use density::{geo_helpers, geopackage, msoa};
 
 static PATH: &str = "./data/uk-zoomstack-geopacakge/OS_Open_Zoomstack.gpkg";
 
-/// Simple program to greet a person
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
@@ -31,9 +30,6 @@ async fn main() {
         .await
         .unwrap();
 
-    // brighton
-    // let msoa = "E02003523";
-    // let msoa = "E02004015";
     let msoa = args.msoa;
     let msoa_geojson = msoa::read_msoa_geojson(&msoa);
     let msoa_geom: geo_types::Geometry<f64> = msoa_geojson.try_into().unwrap();
@@ -44,29 +40,27 @@ async fn main() {
     let to = "EPSG:4326";
     let projection = Proj::new_known_crs(&from, &to, None).unwrap();
 
-    let mut msoa_count = 0;
-    let mut count = 0;
-    let query = geopackage::make_query("local_buildings");
-    let mut stream = geopackage::get_geoms(&query, &msoa_bbox, &pool);
-    let mut geoms = Vec::new();
-    while let Some(row) = stream.try_next().await.unwrap() {
-        let geom = row.geom.geometry.unwrap();
-        if msoa_geom.contains(&geom) {
-            msoa_count += 1;
-            geoms.push(geom);
+    let mut usable_msoa = msoa_geom.clone();
+
+    let unusable_layers = vec!["national_parks", "greenspace", "woodland"];
+    for unusable_layer in unusable_layers {
+        let query = geopackage::make_query(&unusable_layer);
+        let mut stream = geopackage::get_geoms(&query, &msoa_bbox, &pool);
+        while let Some(row) = stream.try_next().await.unwrap() {
+            // println!(
+            //     "Found row: {}",
+            //     row.geom.geometry.clone().unwrap().to_wkt().unwrap()
+            // );
+            let geom = row.geom.geometry.unwrap();
+            usable_msoa = geo_helpers::geometries_difference(&usable_msoa, &geom);
         }
-        count += 1;
     }
 
-    let geometry_collection = GeometryCollection::from_iter(geoms);
-    let geometry_collection_projected =
-        geometry_collection.map_coords(|coord| projection.convert(coord).unwrap());
-    let feature_collection = FeatureCollection::from(&geometry_collection_projected);
+    let usable_msoa_projected = usable_msoa.map_coords(|coord| projection.convert(coord).unwrap());
+    let usable_msoa_feature_collection = GeometryCollection::from(usable_msoa_projected);
+    let feature_collection = FeatureCollection::from(&usable_msoa_feature_collection);
     let feature_collection_str = feature_collection.to_string();
-    let filename = format!("./data/msoa-local-buildings/{}.geojson", msoa);
+    let filename = format!("./data/msoa-usable/{}.geojson", msoa);
     dbg!(&filename);
     fs::write(filename, feature_collection_str).unwrap();
-
-    println!("MSOA Count is {}", msoa_count);
-    println!("Count is {}", count);
 }
