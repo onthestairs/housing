@@ -400,6 +400,8 @@ dependencies = [
  "geojson",
  "geozero",
  "proj",
+ "serde",
+ "serde_json",
  "sqlx",
  "tokio",
 ]
