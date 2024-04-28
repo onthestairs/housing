@@ -8,6 +8,25 @@ ensure-zoomstack-file-exists:
     rm /tmp/uk-zoomstack.zip
   fi
 
+ensure-census-population-exists:
+  #!/usr/bin/env sh
+  if [ -f ./data/census/population.csv ]; then
+    echo "census/population.csv exists"
+  else
+   # generated here: https://www.ons.gov.uk/datasets/create
+   wget -O ./data/census/population.csv https://static.ons.gov.uk/datasets/9a097213-84a6-47cc-89de-824e56f14995/custom-filtered-2024-04-28T13:13:41Z.csv#get-data
+  fi
+
+ensure-census-accomodation-exists:
+  #!/usr/bin/env sh
+  if [ -f ./data/census/accomodation.csv ]; then
+    echo "census/accomodation.csv exists"
+  else
+   # generated here: https://www.ons.gov.uk/datasets/create
+   wget -O ./data/census/accomodation.csv https://static.ons.gov.uk/datasets/e3f2d13f-ba20-4ada-9774-6daf689197e2/custom-filtered-2024-04-28T12:12:52Z.csv#get-data
+  fi
+
+
 ensure-all-msoas-file-exists:
   #!/usr/bin/env sh
   if [ -f ./data/msoa-all/2021.geojson ]; then
