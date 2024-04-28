@@ -5,8 +5,14 @@
   env.GREET = "devenv";
 
   # https://devenv.sh/packages/
-  packages = [ ];
-  # packages = [ pkgs.proj pkgs.libclang ];
+  # packages = [ ];
+  packages = [
+    pkgs.darwin.apple_sdk.frameworks.Security
+    pkgs.darwin.apple_sdk.frameworks.CoreServices
+    pkgs.darwin.apple_sdk.frameworks.CoreFoundation
+    pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
+
+    pkgs.proj
 
   # https://devenv.sh/scripts/
   scripts.hello.exec = "echo hello from $GREET";
@@ -14,6 +20,7 @@
   enterShell = ''
     hello
     git --version
+    export LIBCLANG_PATH="${pkgs.libclang.lib}/lib"
   '';
 
   # https://devenv.sh/tests/
