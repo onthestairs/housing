@@ -1,7 +1,10 @@
 use std::fs;
 
 use clap::Parser;
-use density::{data, msoa};
+use density::{
+    census::{self, Dwellings},
+    data, msoa,
+};
 use geo::GeodesicArea;
 
 #[derive(Parser, Debug)]
@@ -17,6 +20,8 @@ struct Stats {
     usable_area_m2: f64,
     local_buildings_area_m2: f64,
     built_up_area_percent: f64,
+    population: u64,
+    dwellings: Dwellings,
 }
 
 fn main() {
@@ -34,10 +39,15 @@ fn main() {
 
     let built_up_area_percent = local_buildings_area / usable_area * 100.0;
 
+    let population = census::get_population_for_msoa(&msoa);
+    let dwellings = census::get_dwellings_for_msoa(&msoa);
+
     let stats = Stats {
         usable_area_m2: usable_area,
         local_buildings_area_m2: local_buildings_area,
         built_up_area_percent,
+        population,
+        dwellings,
     };
 
     let path = data::get_stats_path(&msoa);
