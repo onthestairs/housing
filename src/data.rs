@@ -18,6 +18,14 @@ pub fn get_msoa_usable_path(msoa: &str) -> String {
     return format!("./data/msoa-usable/{}.geojson", msoa);
 }
 
+pub fn get_census_accomodation_path() -> String {
+    return format!("./data/census/accomodation.csv");
+}
+
+pub fn get_census_population_path() -> String {
+    return format!("./data/census/population.csv");
+}
+
 pub fn get_stats_path(msoa: &str) -> String {
     return format!("./data/stats/{}.json", msoa);
 }
