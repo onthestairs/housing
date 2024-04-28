@@ -16,6 +16,7 @@
     pkgs.just
     pkgs.rust-analyzer
     pkgs.wget
+    pkgs.unzip
   ];
 
   # https://devenv.sh/scripts/
