@@ -1,6 +1,6 @@
 use clap::Parser;
 use density::msoa;
-use geo::{algorithm::area::Area, GeodesicArea};
+use geo::GeodesicArea;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]

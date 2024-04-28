@@ -1,16 +1,13 @@
-use std::fs::{self, File};
+use std::fs::{self};
 
 use clap::Parser;
 use futures::TryStreamExt;
-use geo::{BoundingRect, Contains, GeometryCollection, MapCoords};
+use geo::{BoundingRect, GeometryCollection, MapCoords};
 use geojson::FeatureCollection;
-use geozero::{wkb, ToWkt};
 use proj::Proj;
 use sqlx::sqlite::SqlitePoolOptions;
 
-use density::{geo_helpers, geopackage, msoa};
-
-static PATH: &str = "./data/uk-zoomstack-geopacakge/OS_Open_Zoomstack.gpkg";
+use density::{data, geo_helpers, geopackage, msoa};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -26,7 +23,7 @@ async fn main() {
 
     let pool = SqlitePoolOptions::new()
         .max_connections(1)
-        .connect(PATH)
+        .connect(&data::get_zoomstack_path())
         .await
         .unwrap();
 
@@ -47,10 +44,6 @@ async fn main() {
         let query = geopackage::make_query(&unusable_layer);
         let mut stream = geopackage::get_geoms(&query, &msoa_bbox, &pool);
         while let Some(row) = stream.try_next().await.unwrap() {
-            // println!(
-            //     "Found row: {}",
-            //     row.geom.geometry.clone().unwrap().to_wkt().unwrap()
-            // );
             let geom = row.geom.geometry.unwrap();
             usable_msoa = geo_helpers::geometries_difference(&usable_msoa, &geom);
         }
@@ -60,7 +53,6 @@ async fn main() {
     let usable_msoa_feature_collection = GeometryCollection::from(usable_msoa_projected);
     let feature_collection = FeatureCollection::from(&usable_msoa_feature_collection);
     let feature_collection_str = feature_collection.to_string();
-    let filename = format!("./data/msoa-usable/{}.geojson", msoa);
-    dbg!(&filename);
-    fs::write(filename, feature_collection_str).unwrap();
+    let path = data::get_msoa_usable_path(&msoa);
+    fs::write(path, feature_collection_str).unwrap();
 }
