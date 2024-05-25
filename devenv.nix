@@ -14,7 +14,7 @@
 
     pkgs.proj
     pkgs.just
-    pkgs.rust-analyzer
+    # pkgs.rust-analyzer
     pkgs.wget
     pkgs.unzip
   ];
@@ -39,8 +39,6 @@
 
   # https://devenv.sh/languages/
   languages.rust.enable = true;
-  languages.rust.channel = "stable";
-  languages.rust.components = [ "rustc" "cargo" ];
 
   # https://devenv.sh/pre-commit-hooks/
   # pre-commit.hooks.shellcheck.enable = true;
